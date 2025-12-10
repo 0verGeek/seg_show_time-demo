@@ -11,7 +11,7 @@
 
 #include "stdint.h"
 
-char str[RX_BUFFER_SIZE] = {0};
+extern char str[RX_BUFFER_SIZE];
 
 /*DS3231寄存器结构体*/
 typedef struct
@@ -76,6 +76,7 @@ typedef enum
     TEMP_LSB
 }DS3231_REG;
 
+void DS3231_Init();
 void DS3231_Read_All();
 void DS3231_Update();
 void DS3231_Read_Time();

@@ -21,9 +21,7 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-#include <stdio.h>
-
-#include "usart.h"
+#include <stdint.h>
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -137,19 +135,13 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 }
 
 /* USER CODE BEGIN 1 */
-uint8_t rtc_get_time() {
+void rtc_get_time(uint8_t hours, uint8_t minutes) {
   RTC_TimeTypeDef sTime = {0};
   RTC_DateTypeDef sDate = {0};
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
-  uint8_t hours = sTime.Hours;
-  uint8_t minutes = sTime.Minutes;
-}
-void seg_show_time(uint8_t hours, uint8_t minutes) {
-  // uint8_t seconds = sTime.Seconds;
-  char buf[9];
-  sprintf(buf, "X%02d%02d218", hours, minutes);
-  HAL_UART_Transmit(&huart2, (uint8_t *)buf, 8, HAL_MAX_DELAY);
+  hours = sTime.Hours;
+  minutes = sTime.Minutes;
 }
 /* USER CODE END 1 */

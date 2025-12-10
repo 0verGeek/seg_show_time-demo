@@ -20,6 +20,7 @@
 #include "main.h"
 #include "i2c.h"
 #include "rtc.h"
+#include "stm32g0xx_hal.h"
 #include "stm32g0xx_hal_uart.h"
 #include "stm32g0xx_hal_uart_ex.h"
 #include "usart.h"
@@ -92,7 +93,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  // HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -111,16 +112,20 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-  
-  
+
+  // DS3231_Init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // printf("%d\r\n",'1');
-    // HAL_Delay(1000);
+    // printf("ok\r");
+    DS3231_Read_All();
+	  DS3231_Read_Time();
+    seg_show_time(DS3231_Time.hour, DS3231_Time.min);
+    HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -201,8 +206,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
         .hour_form = HOUR_FORM_24,  // 必须指定小时格式
         .date = atoi(Day),
         .mon = atoi(Month),
-        .year = atoi(Year) % 100,   // 只取年份的后两位
-        .day = 1  // 星期几，默认设为1
+        .year = atoi(Year) % 100,
+        .day = 3  // 星期几，默认设为1
     };
     DS3231_Set_Time(&time_setting);
     DS3231_Update();

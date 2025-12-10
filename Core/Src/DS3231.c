@@ -2,6 +2,7 @@
 #include "i2c.h"
 #include "usart.h"
 
+char str[RX_BUFFER_SIZE] = {0};
 DS3231_RegisterType DS3231_Register;
 DS3231_TimeType DS3231_Time;
 void DS3231_Init()

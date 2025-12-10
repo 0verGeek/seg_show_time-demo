@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 void seg_show_num(float num, bool buff_or_not, uint8_t brightness);
+void seg_show_time(uint8_t hours, uint8_t minutes);
 int check_dot(float x);
 
 

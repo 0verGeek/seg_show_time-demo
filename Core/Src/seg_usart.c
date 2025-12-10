@@ -1,9 +1,7 @@
 #include "seg_usart.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/_intsup.h>
 #include "usart.h"
-#include <string.h>
 #include "math.h"
 
 #define USART &huart2
@@ -16,7 +14,7 @@ void seg_show_num(float num, const bool buff_or_not, uint8_t brightness)
 
     int dot= check_dot(num);
 
-    char buf[9];
+    char buf[30];
     if(num > 9999 || num < -999)
         sprintf(buf, "X----408");
     else
@@ -25,6 +23,12 @@ void seg_show_num(float num, const bool buff_or_not, uint8_t brightness)
     HAL_UART_Transmit(USART, (uint8_t *)buf, 8, HAL_MAX_DELAY);
 }
 
+void seg_show_time(uint8_t hours, uint8_t minutes) {
+  // uint8_t seconds = sTime.Seconds;
+  char buf[30];
+  sprintf(buf, "X%02d%02d218", hours, minutes);
+  HAL_UART_Transmit(&huart2, (uint8_t *)buf, 8, HAL_MAX_DELAY);
+}
 int check_dot(float num)
 {
     int dot = 0;
