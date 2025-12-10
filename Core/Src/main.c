@@ -20,13 +20,19 @@
 #include "main.h"
 #include "i2c.h"
 #include "rtc.h"
+#include "stm32g0xx_hal_uart.h"
+#include "stm32g0xx_hal_uart_ex.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdint.h>
 #include <stdio.h>
-
+#include <string.h>
+#include <sys/_intsup.h>
+#include "stdlib.h"
+#include "DS3231.h"
 #include "seg_usart.h"
 /* USER CODE END Includes */
 
@@ -55,7 +61,7 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
  #ifdef __GNUC__
-     #define PUTCHAR_PROTOTYPE int _io_putchar(int ch)
+     #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
  #else
      #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
  #endif /* __GNUC__*/
@@ -66,7 +72,8 @@ void SystemClock_Config(void);
 
 PUTCHAR_PROTOTYPE
 {
-  HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  uint8_t c = (uint8_t)ch;
+  HAL_UART_Transmit(&huart2, &c, 1, HAL_MAX_DELAY);
   return ch;
 }
 /* USER CODE END 0 */
@@ -104,15 +111,16 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-
+  
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    seg_show_time();
-    HAL_Delay(1000);
+    // printf("%d\r\n",'1');
+    // HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -167,6 +175,44 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  if(huart -> Instance == USART2)
+  {
+    printf("%s", str);
+    char Year[4];
+    char Month[2]; 
+    char Day[2];
+    char Hour[2];
+    char Minute[2];
+    char Second[2];
+
+    strncpy(Year, str, 4);
+    strncpy(Month, str + 5, 2);
+    strncpy(Day, str + 8, 2);
+    strncpy(Hour, str + 11, 2);
+    strncpy(Minute, str + 14, 2);
+    strncpy(Second, str + 17, 2);
+    
+    DS3231_TimeType time_setting = {
+        .sec = atoi(Second),
+        .min = atoi(Minute),
+        .hour = atoi(Hour),
+        .hour_form = HOUR_FORM_24,  // 必须指定小时格式
+        .date = atoi(Day),
+        .mon = atoi(Month),
+        .year = atoi(Year) % 100,   // 只取年份的后两位
+        .day = 1  // 星期几，默认设为1
+    };
+    DS3231_Set_Time(&time_setting);
+    DS3231_Update();
+
+    DS3231_Read_All();
+	  DS3231_Read_Time();
+    printf("20%d/%d/%d %d:%d:%d\r\n",DS3231_Time.year,DS3231_Time.mon,DS3231_Time.date,DS3231_Time.hour,DS3231_Time.min,DS3231_Time.sec);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart2, (uint8_t *)str, RX_BUFFER_SIZE);
+  }
+}
 
 /* USER CODE END 4 */
 

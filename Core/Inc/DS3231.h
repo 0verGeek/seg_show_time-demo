@@ -5,7 +5,13 @@
 #ifndef YLX_DRIVER_DEMO_DS3231_H
 #define YLX_DRIVER_DEMO_DS3231_H
 
+#define HOUR_FORM_12  12
+#define HOUR_FORM_24  24
+#define RX_BUFFER_SIZE 64
+
 #include "stdint.h"
+
+char str[RX_BUFFER_SIZE] = {0};
 
 /*DS3231寄存器结构体*/
 typedef struct
@@ -69,5 +75,13 @@ typedef enum
     TEMP_MSB,
     TEMP_LSB
 }DS3231_REG;
+
+void DS3231_Read_All();
+void DS3231_Update();
+void DS3231_Read_Time();
+void DS3231_Set_Time(DS3231_TimeType* time);
+
+extern DS3231_TimeType DS3231_Time;
+
 
 #endif //YLX_DRIVER_DEMO_DS3231_H
