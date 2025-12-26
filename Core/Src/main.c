@@ -20,9 +20,6 @@
 #include "main.h"
 #include "i2c.h"
 #include "rtc.h"
-#include "stm32g0xx_hal.h"
-#include "stm32g0xx_hal_uart.h"
-#include "stm32g0xx_hal_uart_ex.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -34,6 +31,7 @@
 #include <sys/_intsup.h>
 #include "stdlib.h"
 #include "DS3231.h"
+#include "relay.h"
 #include "seg_usart.h"
 /* USER CODE END Includes */
 
@@ -73,7 +71,7 @@ void SystemClock_Config(void);
 
 PUTCHAR_PROTOTYPE
 {
-  uint8_t c = (uint8_t)ch;
+   uint8_t c = (uint8_t)ch;
   HAL_UART_Transmit(&huart2, &c, 1, HAL_MAX_DELAY);
   return ch;
 }
@@ -93,7 +91,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  // HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -114,6 +112,13 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // DS3231_Init();
+  const Time_Register time_register[16] = {
+    [0] = {
+      .time_hour = 23,
+      .time_minute = 15,
+      .relay_state = 1
+    }
+  };
 
   /* USER CODE END 2 */
 
@@ -121,11 +126,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // printf("ok\r");
+    // HAL_UART_Transmit(&huart2, (uint8_t *)"ok\r\n", 2, 50);
+    // printf("ok\r\n");
+    // HAL_Delay(1000);
+
     DS3231_Read_All();
 	  DS3231_Read_Time();
     seg_show_time(DS3231_Time.hour, DS3231_Time.min);
-    HAL_Delay(1000);
+
+    // relay_register_scan(time_register);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -214,7 +224,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
     DS3231_Read_All();
 	  DS3231_Read_Time();
-    printf("20%d/%d/%d %d:%d:%d\r\n",DS3231_Time.year,DS3231_Time.mon,DS3231_Time.date,DS3231_Time.hour,DS3231_Time.min,DS3231_Time.sec);
+    printf("20%d/%d/%d %02d:%02d:%02d\r\n",DS3231_Time.year,DS3231_Time.mon,DS3231_Time.date,DS3231_Time.hour,DS3231_Time.min,DS3231_Time.sec);
     HAL_UARTEx_ReceiveToIdle_IT(&huart2, (uint8_t *)str, RX_BUFFER_SIZE);
   }
 }

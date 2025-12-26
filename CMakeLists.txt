@@ -47,6 +47,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
         ./Core/Src/seg_usart.c
         ./Core/Src/DS3231.c
+        ./Core/Src/relay.c
 )
 
 # Add include paths
